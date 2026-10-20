@@ -9999,3 +9999,4 @@ LIGNE_INVALIDE_SANS_FORMAT
 2026-10-15T14:33:14 level=INFO ip=192.168.1.22 user=service payload={"event":"http_request","status":200,"method":"GET","path":"/api/data"}
 2026-10-15T14:33:16 level=INFO ip=10.0.0.33 user=bob payload={"event":"http_request","status":200,"method":"GET","path":"/api/data"}
 2026-10-15T14:33:18 level=INFO ip=192.168.1.28 user=service payload={"event":"http_request","status":200,"method":"POST","path":"/"}
+malformed log error
