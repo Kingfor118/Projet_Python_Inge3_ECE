@@ -11998,4 +11998,4 @@
 2026-10-15T15:39:52 level=INFO ip=192.168.1.11 user=service payload={"event":"tcp_connection","port":3306,"protocol":"TCP","action":"allowed"}
 2026-10-15T15:39:54 level=WARNING ip=192.168.1.45 user=service payload={"event":"port_scan","port":8080,"protocol":"TCP","action":"allowed"}
 2026-10-15T15:39:56 level=WARNING ip=192.168.1.52 user=service payload={"event":"port_scan","port":8080,"protocol":"TCP","action":"allowed"}
-2026-10-15T15:39:58 level=INFO ip=10.0.0.21 user=service payload={"event":"tcp_connection","port":443,"protocol":"TCP","action":"allowed"}
+2026-10-15T15:39:58 level=INFO ip=10.0.0.21 user=service payload={"event":"tcp_coNnecTion","port":443,"protocol":"TcP","action":"allowed"}

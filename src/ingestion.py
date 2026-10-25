@@ -14,8 +14,8 @@ def lire_all_logs(path) -> Iterator[str]:
         yield from lire_logs(p)
 
 def parse_logs(logs):
+    
     ### utilisé du regex après pour faire le parsing
-
     try:
         parts = logs.split(maxsplit=4)
         time = parts[0].split('T')
@@ -24,7 +24,6 @@ def parse_logs(logs):
         user = parts[3].split('=',1)
         payload_string = parts[4].split('=',1)
         payload = json.loads(payload_string[1])
-
 
         metadata_tuple = (
             payload.get("port"),
@@ -37,9 +36,9 @@ def parse_logs(logs):
             "ip": ip[1],
             "user": user[1],
             "payload": payload,
-            "metadata": metadata_tulpe
+            "metadata": metadata_tuple
         }
         return logs_dict
+
     except Exception as e:
-        print(f"Error parsing log: {e}")
         return None
