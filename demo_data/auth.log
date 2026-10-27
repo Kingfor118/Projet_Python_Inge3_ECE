@@ -14131,7 +14131,7 @@ malformed log entry
 2026-10-15T12:55:29 level=INFO ip=192.168.1.34 user=charlie payload={"event":"login_success","success":true}
 2026-10-15T12:55:30 level=INFO ip=192.168.1.12 user=bob payload={"event":"login_success","success":true}
 2026-10-15T12:55:31 level=INFO ip=10.0.0.34 user=bob payload={"event":"login_success","success":true}
-2026-10-15T12:55:32 level=ERROR ip=192.168.1.57 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T12:55:32 level=ERROR ip=203.0.113.45 user=alice payload={"event":"login_failed","success":false}
 2026-10-15T12:55:33 level=INFO ip=10.0.0.14 user=bob payload={"event":"login_success","success":true}
 2026-10-15T12:55:34 level=ERROR ip=192.168.1.12 user=guest payload={"event":"login_failed","success":false}
 2026-10-15T12:55:35 level=INFO ip=10.0.0.27 user=bob payload={"event":"login_success","success":true}
