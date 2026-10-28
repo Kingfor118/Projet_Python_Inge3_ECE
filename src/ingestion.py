@@ -42,3 +42,8 @@ def parse_logs(logs):
 
     except Exception as e:
         return None
+
+
+def extract_blacklist_ips(path) -> frozenset:
+    with open(path, 'r') as f:
+        return frozenset(line.strip() for line in f if line.strip())

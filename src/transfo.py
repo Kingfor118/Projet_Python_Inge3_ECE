@@ -1,4 +1,3 @@
-from asyncio import log
 from collections.abc import Iterator
 
 

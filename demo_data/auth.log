@@ -1,3 +1,4 @@
+2026-10-15T08:00:00 level=ERROR ip=192.168.1.13 user=admin payload={"event":"login_failed","success":false}
 2026-10-15T09:00:00 level=INFO ip=192.168.1.13 user=bob payload={"event":"login_success","success":true}
 2026-10-15T09:00:01 level=INFO ip=10.0.0.24 user=guest payload={"event":"login_success","success":true}
 2026-10-15T09:00:02 level=INFO ip=10.0.0.18 user=admin payload={"event":"login_success","success":true}
@@ -2072,6 +2073,13 @@ malformed log entry
 2026-10-15T09:34:30 level=INFO ip=192.168.1.55 user=guest payload={"event":"login_success","success":true}
 2026-10-15T09:34:31 level=INFO ip=192.168.1.23 user=service payload={"event":"login_success","success":true}
 2026-10-15T09:34:32 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:32 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:33 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:34 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:35 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:36 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:37 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T09:34:38 level=ERROR ip=192.168.1.43 user=alice payload={"event":"login_failed","success":false} 
 2026-10-15T09:34:33 level=INFO ip=192.168.1.55 user=charlie payload={"event":"login_success","success":true}
 2026-10-15T09:34:34 level=INFO ip=192.168.1.16 user=service payload={"event":"login_success","success":true}
 2026-10-15T09:34:35 level=INFO ip=10.0.0.29 user=bob payload={"event":"login_success","success":true}
@@ -14260,6 +14268,10 @@ malformed log entry
 2026-10-15T12:57:38 level=INFO ip=192.168.1.13 user=charlie payload={"event":"login_success","success":true}
 2026-10-15T12:57:39 level=INFO ip=192.168.1.51 user=guest payload={"event":"login_success","success":true}
 2026-10-15T12:57:40 level=ERROR ip=10.0.0.13 user=admin payload={"event":"login_failed","success":false}
+2026-10-15T12:57:41 level=ERROR ip=10.0.0.18 user=service payload={"event":"login_failed","success":false}
+2026-10-15T12:57:41 level=ERROR ip=10.0.0.18 user=service payload={"event":"login_failed","success":false}
+2026-10-15T12:57:41 level=ERROR ip=10.0.0.18 user=service payload={"event":"login_failed","success":false}
+2026-10-15T12:57:41 level=ERROR ip=10.0.0.18 user=service payload={"event":"login_failed","success":false}
 2026-10-15T12:57:41 level=ERROR ip=10.0.0.18 user=service payload={"event":"login_failed","success":false}
 2026-10-15T12:57:42 level=INFO ip=192.168.1.55 user=alice payload={"event":"login_success","success":true}
 2026-10-15T12:57:43 level=INFO ip=192.168.1.53 user=guest payload={"event":"login_success","success":true}

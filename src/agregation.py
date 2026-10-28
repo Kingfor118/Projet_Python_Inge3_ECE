@@ -1,14 +1,7 @@
-from collections import defaultdict
-
-
-
-def extract_unique_error_ips(log, unique_ips: set) -> set:
+def extract_unique_error_ips(log, context: dict) -> set:
     if log is not None and log.get("LEVEL") in ("ERROR", "CRITICAL", "WARNING"):
-        unique_ips.add(log.get("IP"))
+        context['unique_ips'].add(log.get("IP"))
 
-def extract_blacklist_ips(path) -> frozenset:
-    with open(path, 'r') as f:
-        return frozenset(line.strip() for line in f if line.strip())
 
 def comparer_ips(ip_actives: set, ip_blacklist: frozenset):
     info = f"""union: {ip_actives | ip_blacklist}
@@ -18,6 +11,28 @@ def comparer_ips(ip_actives: set, ip_blacklist: frozenset):
     """
     return info
 
-def occurence(log, occurence_dict, key):
-     if log is not None and log.get("LEVEL") in ("ERROR", "CRITICAL", "WARNING"):
-            occurence_dict[log.get(key)] += 1
+def occurence(log: dict, context: dict):
+    if log is not None and log.get("LEVEL") in ("ERROR", "CRITICAL", "WARNING"):
+            context['occurence_error'][log.get("LEVEL")] += 1
+            context['occurence_user'][log.get("USER")] += 1
+
+
+def brute_force_detector(log: dict, context: dict):
+    ip = log.get('IP')
+    payload = log.get('PAYLOAD')
+
+    if payload['event'] == 'LOGIN_SUCCESS':
+        context['occurence_brute_force'][ip] = []
+
+    if payload['event'] == 'LOGIN_FAILED':
+        
+        context['occurence_brute_force'][ip].append(log.get('TIME'))
+
+    if len(context['occurence_brute_force'][ip]) >= 5:
+        context['ip_sus_brute_force'].add(ip)
+
+
+
+
+
+
