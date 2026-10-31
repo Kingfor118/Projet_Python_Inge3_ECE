@@ -14299,12 +14299,12 @@ malformed log entry
 2026-10-15T12:58:05 level=INFO ip=10.0.0.18 user=alice payload={"event":"login_success","success":true}
 2026-10-15T12:58:06 level=INFO ip=192.168.1.11 user=guest payload={"event":"login_success","success":true}
 2026-10-15T12:58:07 level=INFO ip=192.168.1.24 user=bob payload={"event":"login_success","success":true}
-2026-10-15T12:58:08 level=INFO ip=192.168.1.16 user=admin payload={"event":"login_success","success":true}
+2026-10-15T12:58:08 level=INFO ip=192.168.1.16 user=admin payload={"wrong":"login_success","success":true}
 2026-10-15T12:58:09 level=INFO ip=192.168.1.27 user=admin payload={"event":"login_success","success":true}
 2026-10-15T12:58:10 level=INFO ip=10.0.0.16 user=alice payload={"event":"login_success","success":true}
 2026-10-15T12:58:11 level=ERROR ip=192.168.1.27 user=charlie payload={"event":"login_failed","success":false}
 2026-10-15T12:58:12 level=INFO ip=192.168.1.19 user=guest payload={"event":"login_success","success":true}
-2026-10-15T12:58:13 level=INFO ip=192.168.1.59 user=charlie payload={"event":"login_success","success":true}
+2026-10-15T12:58:13 wrong=INFO ip=192.168.1.59 user=charlie payload={"wrong":"login_success","success":true}
 2026-10-15T12:58:14 level=INFO ip=192.168.1.41 user=admin payload={"event":"login_success","success":true}
 2026-10-15T12:58:15 level=INFO ip=192.168.1.15 user=alice payload={"event":"login_success","success":true}
 2026-10-15T12:58:16 level=INFO ip=10.0.0.12 user=charlie payload={"event":"login_success","success":true}
@@ -14317,6 +14317,7 @@ malformed log entry
 2026-10-15T12:58:23 level=INFO ip=10.0.0.12 user=admin payload={"event":"login_success","success":true}
 2026-10-15T12:58:24 level=ERROR ip=10.0.0.30 user=charlie payload={"event":"login_failed","success":false}
 2026-10-15T12:58:25 level=INFO ip=192.168.1.52 user=service payload={"event":"login_success","success":true}
+qsldkjhqlsjdhf
 2026-10-15T12:58:26 level=INFO ip=192.168.1.25 user=service payload={"event":"login_success","success":true}
 2026-10-15T12:58:27 level=INFO ip=192.168.1.56 user=guest payload={"event":"login_success","success":true}
 2026-10-15T12:58:28 level=INFO ip=192.168.1.37 user=admin payload={"event":"login_success","success":true}

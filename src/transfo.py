@@ -18,7 +18,7 @@ def normalize_logs(log: dict) -> dict:
 
             case dict():
                 value = {
-                    k: v.strip().upper() if isinstance(v, str) else v
+                    k.strip().upper() : v.strip().upper() if isinstance(v, str) else v
                     for k, v in value.items()
                 }
 
