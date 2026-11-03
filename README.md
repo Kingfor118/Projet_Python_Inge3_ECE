@@ -1,7 +1,7 @@
 # 🛡️ Pipeline d'Ingestion & Détection de Menaces sur Logs (SIEM)
 
-> **Projet Python — Majeure Ingénieur 3 (ECE)**  
-> Analyse, normalisation, détection d'intrusions (brute force), corrélation avec liste noire et audit par introspection.
+ **Projet Python — Majeure Ingénieur 3 (ECE)**  
+ Analyse, normalisation, détection d'intrusions (brute force), corrélation avec liste noire et audit par introspection.
 
 ---
 
