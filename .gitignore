@@ -1,0 +1,9 @@
+# Dossiers de rapport generes a chaque scan (un sous-dossier par date/heure)
+report/*/
+
+# Fichiers Python compiles
+__pycache__/
+*.pyc
+
+# Fichier de log genere par le menu de start.py (choix 2)
+demo_data/exemple_genere_*.log

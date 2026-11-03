@@ -1,3 +1,6 @@
+import os
+from datetime import datetime
+
 from src.ingestion import *
 from src.transfo import *
 from src.agregation import *
@@ -35,6 +38,12 @@ def lancer_pipeline(fichiers_logs, fichier_blacklist):
 
     logs = fichiers_logs
 
+    # Dossier de rapport : un sous-dossier horodate (date + heure) est cree
+    # dans report/ a chaque scan, pour ne jamais ecraser le rapport precedent.
+    horodatage = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    dossier_rapport = os.path.join("report", horodatage)
+    os.makedirs(dossier_rapport, exist_ok=True)
+
     # Lecture des fichiers (module 1)
     raw_logs = lire_all_logs(logs)
 
@@ -61,10 +70,35 @@ def lancer_pipeline(fichiers_logs, fichier_blacklist):
             context=context
         )
 
-        introspection_local(var_locals)
+        introspection_local(var_locals, dossier_rapport)
 
     var_globals = globals()
-    introspection_global(var_globals)
+    introspection_global(var_globals, dossier_rapport)
+
+    verifier_rapport(dossier_rapport)
+
+    return dossier_rapport
+
+
+def verifier_rapport(dossier_rapport):
+    """Verifie que les fichiers de rapport ont bien ete crees, et affiche
+    le resultat dans le terminal pour etre sur que le scan s'est bien passe."""
+    fichier_global = os.path.join(dossier_rapport, "report_global.txt")
+    fichier_local = os.path.join(dossier_rapport, "report_local.txt")
+
+    print()
+    print("=== Verification du rapport ===")
+    print(f"Dossier : {dossier_rapport}")
+
+    if os.path.exists(fichier_global):
+        print(f"- report_global.txt : OK ({fichier_global})")
+    else:
+        print(f"- report_global.txt : MANQUANT ({fichier_global})")
+
+    if os.path.exists(fichier_local):
+        print(f"- report_local.txt : OK ({fichier_local})")
+    else:
+        print(f"- report_local.txt : MANQUANT ({fichier_local})")
 
 
 if __name__ == "__main__":

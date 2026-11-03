@@ -1,3 +1,6 @@
+import os
+
+
 def list_info(log: dict) -> str:
     payload = log.get('PAYLOAD') or {}
 
@@ -20,7 +23,7 @@ def list_info(log: dict) -> str:
 
     return information
 
-def introspection_local(local_variables: dict):
+def introspection_local(local_variables: dict, dossier_rapport: str):
 
     details = ""
 
@@ -53,13 +56,14 @@ regles appliquees: {[rule.__name__ for rule in applied_rules]}
 
 '''
     if log_level == 'ERROR' or log_level == 'WARNING' or log_level == 'CRITICAL' or ip_address in context['ip_sus_brute_force']:
-        with open("report/report_local.txt", "a") as f:
+        chemin_fichier = os.path.join(dossier_rapport, "report_local.txt")
+        with open(chemin_fichier, "a") as f:
             f.write(information)
 
 
 
 
-def introspection_global(var_global: dict):
+def introspection_global(var_global: dict, dossier_rapport: str):
     ip_sus_brute_force = var_global.get('context').get('ip_sus_brute_force')
     occurence_user = var_global.get('context').get('occurence_user')
     occurence_error = var_global.get('context').get('occurence_error')
@@ -119,7 +123,8 @@ Codes de statut:
 [FIN DU RAPPORT]
 
 '''
-    with open("report/report_global.txt", "a") as f:
+    chemin_fichier = os.path.join(dossier_rapport, "report_global.txt")
+    with open(chemin_fichier, "a") as f:
         f.write(information)
 
 
