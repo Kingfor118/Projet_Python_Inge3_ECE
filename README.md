@@ -4,7 +4,7 @@ Projet Python ING3 ECE (en trinome) : un outil en ligne de commande qui lit des 
 
 ## Installation
 
-Il faut Python 3.10 ou plus.
+Il faut Python 3.12 ou plus pour installer le requirements.txt (les versions figees de numpy et matplotlib l'exigent).
 
 ```
 python -m venv .venv
@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 (sur Linux / Mac : `source .venv/bin/activate`)
 
-Le projet n'utilise que la bibliotheque standard donc le requirements.txt ne contient pas de paquets.
+Le pipeline n'utilise que la bibliotheque standard. Le requirements.txt liste Jupyter et matplotlib, utilises uniquement par le rapport (`report/rapport.ipynb`).
 
 ## Lancement
 
@@ -32,6 +32,12 @@ python start.py
 
 Les rapports sont crees dans `report/<date>_<heure>/` (report_global.txt et report_local.txt).
 
+Le rapport de projet, deja execute, est `report/rapport.ipynb`. Pour le relancer :
+
+```
+jupyter notebook report/rapport.ipynb
+```
+
 ## Organisation
 
 - `main.py` : lance tout le pipeline
@@ -42,7 +48,8 @@ Les rapports sont crees dans `report/<date>_<heure>/` (report_global.txt et repo
 - `src/rules_engine.py` : moteur de regles (`apply_security_rules`)
 - `src/introspection.py` : rapports a partir de globals() / locals()
 - `src/generation_logs.py` : generation d'un fichier de log d'exemple
-- `demo_data/` : logs de test et blacklist
+- `demo_data/` : logs de test et blacklist (`echantillon.log` : petit exemple utilise par le notebook)
+- `report/rapport.ipynb` : rapport de projet (demonstration et graphiques)
 
 Format d'une ligne de log :
 

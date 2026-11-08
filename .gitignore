@@ -10,3 +10,6 @@ demo_data/exemple_genere_*.log
 
 # Environnement virtuel
 .venv/
+
+# Sauvegardes automatiques de Jupyter
+.ipynb_checkpoints/

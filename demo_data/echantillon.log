@@ -1,0 +1,17 @@
+2026-10-15T08:00:00 level=INFO ip=192.168.1.13 user=alice payload={"event":"login_success","success":true}
+2026-10-15T08:00:05 level=ERROR ip=192.168.1.13 user=alice payload={"event":"login_failed","success":false}
+2026-10-15T08:00:10 level=INFO ip=192.168.1.13 user=alice payload={"event":"login_success","success":true}
+2026-10-15T08:01:00 level=ERROR ip=10.0.0.99 user=admin payload={"event":"login_failed","success":false}
+2026-10-15T08:01:02 level=ERROR ip=10.0.0.99 user=admin payload={"event":"login_failed","success":false}
+2026-10-15T08:01:04 level=ERROR ip=10.0.0.99 user=admin payload={"event":"login_failed","success":false}
+2026-10-15T08:01:06 level=ERROR ip=10.0.0.99 user=admin payload={"event":"login_failed","success":false}
+2026-10-15T08:01:08 level=CRITICAL ip=10.0.0.99 user=admin payload={"event":"login_failed","success":false}
+2026-10-15T08:02:00 level=ERROR ip=192.168.1.50 user=bob payload={"event":"login_failed","success":false}
+2026-10-15T08:02:05 level=WARNING ip=192.168.1.50 user=bob payload={"event":"login_failed","success":false}
+2026-10-15T08:03:00 level=INFO ip=192.168.1.20 user=charlie payload={"event":"http_request","status":200,"method":"GET","path":"/"}
+2026-10-15T08:03:05 level=ERROR ip=192.168.1.21 user=guest payload={"event":"http_request","status":500,"method":"POST","path":"/login"}
+2026-10-15T08:04:00 level=INFO ip=192.168.1.22 user=service payload={"event":"tcp_connection","port":443,"protocol":"TCP"}
+2026-10-15T08:04:05 level=WARNING ip=192.168.1.23 user=service payload=connexion refusee par le pare-feu
+2026-10-15T08:05:00 level=ERROR ip=192.168.1.24 user=guest payload={"success":false}
+ligne illisible
+
