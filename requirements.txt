@@ -1,2 +1,3 @@
 # genere avec pip freeze dans le venv du projet
 # aucune dependance externe : le projet utilise uniquement la bibliotheque standard de Python
+xsqdqsdqs
