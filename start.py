@@ -1,10 +1,4 @@
-"""Point d'entrée du programme.
-
-Affiche un petit menu pour choisir quoi analyser, puis lance le pipeline
-défini dans main.py avec les fichiers choisis.
-"""
-# sur certains mac et linux tkinter est pas installe avec python
-# donc on essaye de l'importer, et si ca marche pas on retient juste qu'il est pas la
+# tkinter n'est pas toujours installe sur mac et linux
 try:
     import tkinter as tk
     from tkinter import filedialog
@@ -18,12 +12,10 @@ from src.generation_logs import generer_fichier_exemple
 BLACKLIST_PAR_DEFAUT = "demo_data/blacklist.txt"
 
 
-def choisir_fichiers_existants():
-    """Ouvre l'explorateur Windows et renvoie la liste des fichiers choisis."""
-    # On crée une fenêtre tkinter puis on la cache tout de suite :
-    # on ne veut que la boîte de dialogue, pas une fenêtre vide en plus.
+# ouvre l'explorateur de fichiers
+def choisir_fichiers_existants() -> list[str]:
     fenetre = tk.Tk()
-    fenetre.withdraw()
+    fenetre.withdraw()  # cache la fenetre vide
 
     fichiers = filedialog.askopenfilenames(
         title="Choisir un ou plusieurs fichiers de log",
@@ -36,13 +28,11 @@ def choisir_fichiers_existants():
     return list(fichiers)
 
 
-# marche partout (windows, mac, linux) car on utilise juste input()
-def taper_chemins_fichiers():
+def taper_chemins_fichiers() -> list[str]:
     print("Tape le chemin des fichiers de log, separes par une virgule")
     print("exemple : demo_data/auth.log, demo_data/server.log")
     texte = input("Fichiers : ")
 
-    # on coupe le texte a chaque virgule et on enleve les espaces autour
     fichiers = []
     for morceau in texte.split(","):
         chemin = morceau.strip()
@@ -52,7 +42,7 @@ def taper_chemins_fichiers():
     return fichiers
 
 
-def afficher_menu():
+def afficher_menu() -> None:
     print("=== Analyseur de logs ===")
     print("1. Choisir un ou plusieurs fichiers de log existants (explorateur)")
     print("2. Taper le chemin des fichiers de log")
@@ -60,41 +50,30 @@ def afficher_menu():
     print("4. Quitter")
 
 
-def main():
+def main() -> None:
     afficher_menu()
     choix = input("Ton choix : ").strip()
 
-    if choix == "1":
-        # si tkinter est pas installe on peut pas ouvrir l'explorateur,
-        # alors on demande de taper les chemins a la place
-        if TKINTER_DISPONIBLE:
-            fichiers_logs = choisir_fichiers_existants()
-        else:
-            print("L'explorateur n'est pas disponible sur cet ordinateur (tkinter manquant).")
-            fichiers_logs = taper_chemins_fichiers()
-
-        if not fichiers_logs:
-            print("Aucun fichier sélectionné, on arrête ici.")
-            return
-
+    if choix == "1" and TKINTER_DISPONIBLE:
+        fichiers_logs = choisir_fichiers_existants()
+    elif choix == "1":
+        print("L'explorateur n'est pas disponible (tkinter manquant).")
+        fichiers_logs = taper_chemins_fichiers()
     elif choix == "2":
         fichiers_logs = taper_chemins_fichiers()
-
-        if not fichiers_logs:
-            print("Aucun fichier sélectionné, on arrête ici.")
-            return
-
     elif choix == "3":
         fichier_genere = generer_fichier_exemple()
         print(f"Fichier d'exemple généré : {fichier_genere}")
         fichiers_logs = [fichier_genere]
-
     elif choix == "4":
         print("À bientôt !")
         return
-
     else:
         print("Choix invalide, on arrête ici.")
+        return
+
+    if not fichiers_logs:
+        print("Aucun fichier sélectionné, on arrête ici.")
         return
 
     lancer_pipeline(fichiers_logs, BLACKLIST_PAR_DEFAUT)

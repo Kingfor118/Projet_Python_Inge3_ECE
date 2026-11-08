@@ -1,8 +1,10 @@
-import os, sys
+import os
+import sys
+
 from src.transfo import recuperer_payload
 
 
-# fabrique un petit texte avec les infos du log, pour le rapport
+# resume d'un log pour le rapport, sans les valeurs vides
 def list_info(log: dict) -> str:
     payload = recuperer_payload(log)
 
@@ -18,193 +20,156 @@ def list_info(log: dict) -> str:
     }
 
     information = ""
-
-    # on ajoute seulement les infos qui existent (pas les None)
     for nom, valeur in champs.items():
         if valeur is not None:
             information += f"{nom}: {valeur}\n"
 
     return information
 
-# rapport pour UN log
-# local_variables = ce que locals() a renvoye dans apply_security_rules
-# dedans il y a 'args' (les regles appliquees) et 'kwargs' (log, context...)
-def introspection_local(local_variables: dict, dossier_rapport: str):
+
+# rapport d'un log, a partir du locals() du moteur de regles
+def introspection_local(local_variables: dict, dossier_rapport: str) -> None:
+    kwargs = local_variables['kwargs']
+    regles = local_variables['args']
+    context = kwargs['context']
+    log = kwargs['log']
+    ip = log.get('IP')
+
+    # on garde seulement les alertes et les ip suspectes
+    alerte = log.get('LEVEL') in ('ERROR', 'WARNING', 'CRITICAL')
+    if not alerte and ip not in context['ip_sus_brute_force']:
+        return
 
     details = ""
-
-    # on recupere ce qu'il nous faut dans les variables locales
-    function_kwargs = local_variables.get('kwargs')
-    applied_rules = local_variables.get('args')
-    context = function_kwargs['context']
-    log = function_kwargs['log']
-    ip_address = log.get('IP')
-    log_level = log.get('LEVEL')
-    event = recuperer_payload(log).get('EVENT')
-
-   
-    log_info = list_info(log)
-
-    # pour les logins on ajoute en plus les infos de brute force
-    if event in ('LOGIN_SUCCESS', 'LOGIN_FAILED'):
+    if recuperer_payload(log).get('EVENT') in ('LOGIN_SUCCESS', 'LOGIN_FAILED'):
+        suspecte = 'Oui' if ip in context['ip_sus_brute_force'] else 'Non'
         details = f'''
 [CONTEXTE]
-Echecs de connexion pour cette IP : {context['occurence_brute_force'].get(ip_address, 0)}
-IP suspecte de brute force : {'Oui' if ip_address in context['ip_sus_brute_force'] else 'Non'}
+Echecs de connexion pour cette IP : {context['occurence_brute_force'].get(ip, 0)}
+IP suspecte de brute force : {suspecte}
 '''
 
-    # rule.__name__ donne le nom de la fonction (ex: "occurence")
     information = f'''
 -----------------------------------------------------------------------
 [LOG]
-{log_info}
+{list_info(log)}
 [MOTEUR DE REGLES]
-nombre de regles appliquees: {len(applied_rules)}
-regles appliquees: {[rule.__name__ for rule in applied_rules]}
+nombre de regles appliquees: {len(regles)}
+regles appliquees: {[regle.__name__ for regle in regles]}
 {details}
 
 '''
-    # on ecrit dans le rapport seulement les logs importants (erreurs ou ip suspecte)
-    # "a" = on ajoute a la fin du fichier sans effacer ce qu'il y a deja
-    if log_level == 'ERROR' or log_level == 'WARNING' or log_level == 'CRITICAL' or ip_address in context['ip_sus_brute_force']:
-        chemin_fichier = os.path.join(dossier_rapport, "report_local.txt")
-        with open(chemin_fichier, "a", encoding="utf-8") as f:
-            f.write(information)
-
-
-
-
-# rapport final, fait une seule fois a la fin
-# var_global = ce que globals() a renvoye dans main.py
-# on va chercher dedans le context (tous les compteurs) et la blacklist
-def introspection_global(var_global: dict, dossier_rapport: str):
-    ip_sus_brute_force = var_global.get('context').get('ip_sus_brute_force')
-    occurence_user = var_global.get('context').get('occurence_user')
-    occurence_error = var_global.get('context').get('occurence_error')
-    unique_ips = var_global.get('context').get('unique_ips')
-    echecs_par_ip = var_global.get('context').get('echecs_par_ip')
-    success_par_ip = var_global.get('context').get('success_par_ip')
-    blacklist_ips = var_global.get('blacklist_ips')
-    port = var_global.get('context').get('ports')
-    protocol = var_global.get('context').get('protocols')
-    status_codes = var_global.get('context').get('status_codes')
-    formats = var_global.get('context').get('formats')
-
-
-    # pour chaque ip on calcule son pourcentage de logins rates
-    list_ip_string = ""
-
-    for ip in unique_ips:
-            
-        if echecs_par_ip[ip] + success_par_ip[ip] > 0: #evite la division par zero
-            list_ip_string += f"{ip} (echecs: {echecs_par_ip[ip]}, succes: {success_par_ip[ip]}, pourcentage d'echec: {echecs_par_ip[ip] / (echecs_par_ip[ip] + success_par_ip[ip]) * 100:.2f}%)\n"
-
-    # operations sur les ensembles utilisees dans le rapport :
-    # | = union (les ip des deux cotes)
-    # & = intersection (les ip qui sont dans les deux)
-    # - = difference (les ip du premier mais pas du deuxieme)
-    # ^ = difference symetrique (les ip qui sont dans un seul des deux)
-    information = f'''
-[VARIABLES GLOBALES]
-nombre de fichier de log = {len(var_global.get('logs', []))}
-
------------------------------------------------------------------------
-ip suspecte de brute force: 
-{formate_affichages(ip_sus_brute_force)} 
-l'occurence d'utilisateur: 
-{formate_affichages(dict(occurence_user))}
-l'occurence d'erreur: 
-{formate_affichages(dict(occurence_error))}
-nombre de ip unique: 
-{len(unique_ips)}
------------------------------------------------------------------------
-
-[COMPARAISON DES IP AVEC LA BLACKLIST]
-Union des ip actives et blacklist: 
-{formate_affichages(unique_ips | blacklist_ips)}
-IP blacklistees actives : 
-{formate_affichages(unique_ips & blacklist_ips)}
-IP actives non blacklistees : 
-{formate_affichages(unique_ips - blacklist_ips)}
-Difference symetrique : 
-{formate_affichages(unique_ips ^ blacklist_ips)}
-
-[AUTRE]
-IP suspecte qui n'est pas dans la blacklist 
-{formate_affichages(ip_sus_brute_force - blacklist_ips)}
-portes d'ip:
-{formate_affichages(dict(port))}
-Protocoles d'ip:
-{formate_affichages(dict(protocol))}
-Codes de statut:
-{formate_affichages(dict(status_codes))}
-Formats des logs (routage match-case):
-{formate_affichages(dict(formats))}
-[STATISTIQUES DES IP]
-{list_ip_string}
-
-
-'''
-    chemin_fichier = os.path.join(dossier_rapport, "report_global.txt")
-    with open(chemin_fichier, "a", encoding="utf-8") as f:
+    chemin = os.path.join(dossier_rapport, "report_local.txt")
+    with open(chemin, "a", encoding="utf-8") as f:
         f.write(information)
 
 
-# Fonction qui formate les affichages des dictionnaires et des ensembles pour le rapport global
+# pourcentage d'echec de login des ip avec des erreurs
+def stats_ip(context: dict) -> str:
+    texte = ""
+    for ip in sorted(context['unique_ips']):
+        echecs = context['echecs_par_ip'][ip]
+        succes = context['success_par_ip'][ip]
+        if echecs + succes > 0:
+            pourcentage = echecs / (echecs + succes) * 100
+            texte += (
+                f"{ip} (echecs: {echecs}, succes: {succes}, "
+                f"pourcentage d'echec: {pourcentage:.2f}%)\n"
+            )
+    return texte
+
+
+# rapport final, a partir du globals() de main.py
+def introspection_global(var_global: dict, dossier_rapport: str) -> None:
+    context = var_global['context']
+    blacklist = var_global['blacklist_ips']
+    actives = context['ips_actives']
+    suspectes = context['ip_sus_brute_force']
+
+    information = f'''
+[VARIABLES GLOBALES]
+nombre de fichier de log = {len(var_global['logs'])}
+
+-----------------------------------------------------------------------
+ip suspecte de brute force:
+{formate_affichages(suspectes)}
+alertes par utilisateur:
+{formate_affichages(dict(context['occurence_user']))}
+alertes par niveau:
+{formate_affichages(dict(context['occurence_error']))}
+nombre d'ip actives:
+{len(actives)}
+nombre d'ip avec des erreurs:
+{len(context['unique_ips'])}
+-----------------------------------------------------------------------
+
+[COMPARAISON DES IP AVEC LA BLACKLIST]
+Union des ip actives et blacklist:
+{formate_affichages(actives | blacklist)}
+IP blacklistees actives :
+{formate_affichages(actives & blacklist)}
+IP actives non blacklistees :
+{formate_affichages(actives - blacklist)}
+Difference symetrique :
+{formate_affichages(actives ^ blacklist)}
+
+[AUTRE]
+IP suspecte qui n'est pas dans la blacklist
+{formate_affichages(suspectes - blacklist)}
+Ports:
+{formate_affichages(dict(context['ports']))}
+Protocoles:
+{formate_affichages(dict(context['protocols']))}
+Codes de statut:
+{formate_affichages(dict(context['status_codes']))}
+Formats des logs (match-case):
+{formate_affichages(dict(context['formats']))}
+[STATISTIQUES DES IP]
+{stats_ip(context)}
+
+'''
+    chemin = os.path.join(dossier_rapport, "report_global.txt")
+    with open(chemin, "a", encoding="utf-8") as f:
+        f.write(information)
+
+
+# une ligne par element, triee
 def formate_affichages(item: dict | set | frozenset) -> str:
+    if isinstance(item, dict):
+        # les nombres d'abord, puis les textes
+        tri = sorted(item.items(), key=lambda paire: (isinstance(paire[0], str), paire[0]))
+        lignes = [f"- {cle}: {valeur}" for cle, valeur in tri]
+    else:
+        lignes = [f"- {element}" for element in sorted(item)]
 
-    # pour un dictionnaire : une ligne "- cle: valeur" par element, trie
-    if type(item) is dict:
-        sorted_items = sorted(item.items())
-        formatted_items = ""
-
-        for key, value in sorted_items:
-            formatted_items += f"- {key}: {value}\n"
-
-        if formatted_items == "":
-            formatted_items = "- aucun\n"
-
-        return formatted_items
-
-    # pour un set : une ligne "- ip" par element, trie
-    if type(item) is set:
-        sorted_ips = sorted(item)
-        formatted_ips = ""
-
-        for ip in sorted_ips:
-            formatted_ips += f"- {ip}\n"
-
-        if formatted_ips == "":
-            formatted_ips = "- aucun\n"
-
-        return formatted_ips
-
-    return ""
+    if not lignes:
+        return "- aucun\n"
+    return "\n".join(lignes) + "\n"
 
 
-
+# nom, type et taille de chaque variable
 def audit_variable(variables: dict, titre: str) -> str:
-    text = f"[AUDIT {titre}]\n"
+    texte = f"[AUDIT {titre}]\n"
 
-    for name, value in sorted(variables.items()):
-
-        if name.startswith("__"):
+    for nom in sorted(variables):
+        if nom.startswith("__"):
             continue
+        valeur = variables[nom]
+        texte += f"- {nom} : {type(valeur).__name__}, {sys.getsizeof(valeur)} octets\n"
 
-        value_type = type(value).__name__
-        value_size = sys.getsizeof(value)
-        text += f"- {name} : {value_type}, {value_size} octets \n"
+    return texte
 
-    return text
 
-def introspection_audit(locales_variables: dict, globals_variables: dict, dossier_rapport: str) -> None:
-    text = audit_variable(locales_variables, "VARIABLES LOCALES (locals)")
-    text += "\n"
-    text += audit_variable(globals_variables, "VARIABLES GLOBALES (globals)")
+# ajoute l'audit de locals() et globals() au rapport final
+def introspection_audit(
+    locales_variables: dict, globales_variables: dict, dossier_rapport: str
+) -> None:
+    texte = audit_variable(locales_variables, "VARIABLES LOCALES (locals)")
+    texte += "\n"
+    texte += audit_variable(globales_variables, "VARIABLES GLOBALES (globals)")
+    texte += "\n-----------------------------------------------------------------------\n"
+    texte += "[FIN DU RAPPORT]\n"
 
-    text += "\n-----------------------------------------------------------------------\n"
-    text += "[FIN DU RAPPORT]\n"
-
-    path_rapport = os.path.join(dossier_rapport, "report_global.txt")
-    with open(path_rapport, "a", encoding="utf-8") as f:
-        f.write(text)
+    chemin = os.path.join(dossier_rapport, "report_global.txt")
+    with open(chemin, "a", encoding="utf-8") as f:
+        f.write(texte)

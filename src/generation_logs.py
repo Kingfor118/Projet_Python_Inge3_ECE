@@ -3,15 +3,13 @@ import os
 import random
 from datetime import datetime, timedelta
 
-# Valeurs possibles pour fabriquer des lignes de log réalistes.
 NIVEAUX = ["INFO", "WARNING", "ERROR", "CRITICAL"]
 UTILISATEURS = ["admin", "alice", "bob", "charlie", "guest", "service"]
 EVENEMENTS = ["login_success", "login_failed", "http_request", "tcp_connection"]
 
 
-def generer_ligne_log(moment):
-    """Construit une seule ligne de log, au même format que les fichiers
-    de demo_data (ex: auth.log, server.log, network.log)."""
+# fabrique une ligne de log au hasard
+def generer_ligne_log(moment: datetime) -> str:
     niveau = random.choice(NIVEAUX)
     ip = f"192.168.1.{random.randint(1, 50)}"
     utilisateur = random.choice(UTILISATEURS)
@@ -32,14 +30,11 @@ def generer_ligne_log(moment):
         payload["protocol"] = "TCP"
 
     horodatage = moment.strftime("%Y-%m-%dT%H:%M:%S")
-    payload_json = json.dumps(payload)
-
-    return f"{horodatage} level={niveau} ip={ip} user={utilisateur} payload={payload_json}"
+    return f"{horodatage} level={niveau} ip={ip} user={utilisateur} payload={json.dumps(payload)}"
 
 
-def generer_fichier_exemple(nombre_lignes=200, dossier="demo_data"):
-    """Génère un fichier de log d'exemple rempli de lignes aléatoires,
-    et renvoie le chemin du fichier créé."""
+# cree un fichier de logs et renvoie son chemin
+def generer_fichier_exemple(nombre_lignes: int = 200, dossier: str = "demo_data") -> str:
     nom_fichier = "exemple_genere_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".log"
     chemin = os.path.join(dossier, nom_fichier)
 
@@ -48,7 +43,6 @@ def generer_fichier_exemple(nombre_lignes=200, dossier="demo_data"):
     with open(chemin, "w", encoding="utf-8") as fichier:
         for _ in range(nombre_lignes):
             moment += timedelta(seconds=2)
-            ligne = generer_ligne_log(moment)
-            fichier.write(ligne + "\n")
+            fichier.write(generer_ligne_log(moment) + "\n")
 
     return chemin
