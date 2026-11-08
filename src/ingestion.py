@@ -101,8 +101,8 @@ def parse_logs(logs: str) -> dict | None:
         # Port et protocole valent None si la ligne n'est pas une connexion.
         metadata_tuple = (
             ip[1],
-            payload.get("port"),
-            payload.get("protocol"),
+            port,
+            protocole,
         )
 
         # on verifie que les noms avant les = sont les bons

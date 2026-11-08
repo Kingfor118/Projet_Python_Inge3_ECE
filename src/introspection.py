@@ -161,6 +161,9 @@ def formate_affichages(item: dict | set | frozenset) -> str:
         for key, value in sorted_items:
             formatted_items += f"- {key}: {value}\n"
 
+        if formatted_items == "":
+            formatted_items = "- aucun\n"
+
         return formatted_items
 
     # pour un set : une ligne "- ip" par element, trie
@@ -171,7 +174,13 @@ def formate_affichages(item: dict | set | frozenset) -> str:
         for ip in sorted_ips:
             formatted_ips += f"- {ip}\n"
 
+        if formatted_ips == "":
+            formatted_ips = "- aucun\n"
+
         return formatted_ips
+
+    return ""
+
 
 
 def audit_variable(variables: dict, titre: str) -> str:
@@ -184,7 +193,7 @@ def audit_variable(variables: dict, titre: str) -> str:
 
         value_type = type(value).__name__
         value_size = sys.getsizeof(value)
-        text += f" - {name} : {value_type}, {value_size} octets \n"
+        text += f"- {name} : {value_type}, {value_size} octets \n"
 
     return text
 
@@ -193,7 +202,7 @@ def introspection_audit(locales_variables: dict, globals_variables: dict, dossie
     text += "\n"
     text += audit_variable(globals_variables, "VARIABLES GLOBALES (globals)")
 
-    text += "\n-----------------------------------------------------------------------"
+    text += "\n-----------------------------------------------------------------------\n"
     text += "[FIN DU RAPPORT]\n"
 
     path_rapport = os.path.join(dossier_rapport, "report_global.txt")

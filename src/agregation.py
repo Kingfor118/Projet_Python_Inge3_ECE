@@ -46,7 +46,7 @@ def brute_force_detector(log: dict, context: dict, seuil_brute_force: int, **kwa
 
 # compte les logins reussis / rates par ip, et les ports, protocoles et codes http qu'on voit
 def occurence_ip_connexion(log: dict, context: dict, **kwargs):
-    payload = log.get("PAYLOAD") or {}
+    payload = recuperer_payload(log)
     event = payload.get("EVENT")
     ip = log.get("IP")
 
