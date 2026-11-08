@@ -1,4 +1,4 @@
-from src.transfo import router_log
+from src.transfo import router_log, recuperer_payload
 
 # Remarque : chaque regle recoit TOUS les parametres passes a
 # apply_security_rules (log, context, seuil_brute_force...).
@@ -9,13 +9,13 @@ from src.transfo import router_log
 # ajoute l'ip dans le set des ip qui ont fait des erreurs
 # comme c'est un set, si l'ip est deja dedans elle est pas ajoutee 2 fois
 def extract_unique_error_ips(log, context: dict, **kwargs):
-    if log is not None and log.get("LEVEL") in ("ERROR", "CRITICAL", "WARNING"):
+    if log is not None and log.get("LEVEL") in ("ERROR", "CRITICAL"):
         context['unique_ips'].add(log.get("IP"))
 
 
 # compte les erreurs par niveau et par utilisateur
 # grace au defaultdict on peut faire += 1 meme la premiere fois (ca part de 0)
-def occurence(log: dict, context: dict, **kwargs):
+def occurence(log: dict, context: dict, **kwargs) -> None:
     if log is not None and log.get("LEVEL") in ("ERROR", "CRITICAL", "WARNING"):
             context['occurence_error'][log.get("LEVEL")] += 1
             context['occurence_user'][log.get("USER")] += 1
@@ -25,7 +25,7 @@ def occurence(log: dict, context: dict, **kwargs):
 def brute_force_detector(log: dict, context: dict, seuil_brute_force: int, **kwargs):
     ip = log.get('IP')
     # "or {}" : si y a pas de payload on prend un dictionnaire vide pour eviter une erreur
-    payload = log.get('PAYLOAD') or {}
+    payload = recuperer_payload(log)
     event = payload.get('EVENT')
 
 
@@ -46,7 +46,7 @@ def brute_force_detector(log: dict, context: dict, seuil_brute_force: int, **kwa
 
 # compte les logins reussis / rates par ip, et les ports, protocoles et codes http qu'on voit
 def occurence_ip_connexion(log: dict, context: dict, **kwargs):
-    payload = log.get("PAYLOAD") or {}
+    payload = recuperer_payload(log)
     event = payload.get("EVENT")
     ip = log.get("IP")
 
@@ -76,3 +76,6 @@ def compter_formats(log: dict, context: dict, **kwargs):
     # On donne aussi le tuple (IP, Port, Protocole) du log au routeur
     format_metadata = router_log(log.get("METADATA"))
     context['formats'][format_metadata] += 1
+
+    format_payload = router_log(log.get("PAYLOAD"))
+    context['formats']["PAYLOAD " + format_payload] += 1

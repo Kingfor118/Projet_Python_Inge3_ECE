@@ -4,7 +4,7 @@ from collections.abc import Iterator
 # enleve les logs vides ou invalides (ceux ou parse_logs a renvoye None)
 # filter garde seulement les logs pour lesquels la lambda renvoie True
 # la lambda c'est une petite fonction sans nom, ecrite sur une seule ligne
-def filtrage_logs(logs) -> Iterator:
+def filtrage_logs(logs: Iterator[dict | None]) -> Iterator[dict]:
     yield from filter(
         lambda log: log is not None and log != {}, logs)
 
@@ -53,7 +53,7 @@ def normalize_logs(log: dict) -> dict:
     return normalized
 
 
-def router_log(element) -> str:
+def router_log(element: object) -> str:
     """Regarde le format de l'element recu et renvoie son type de log.
 
     Les case sont testes dans l'ordre : le premier qui correspond gagne.
@@ -91,3 +91,15 @@ def router_log(element) -> str:
         # Tout le reste
         case _:
             return "FORMAT INCONNU"
+
+
+
+# INFO: (Lucas)
+"""
+La fonction permet de récupérer dans le log seulement les payload de type dict, sinon on return un dict vide.
+"""
+def recuperer_payload(log: dict) -> dict:
+    payload = log.get("PAYLOAD")
+    if isinstance(payload, dict):
+        return payload
+    return {}
