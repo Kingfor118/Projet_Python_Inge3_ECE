@@ -1,15 +1,22 @@
 import os
+from collections import defaultdict
 from datetime import datetime
 
-from src.ingestion import *
-from src.transfo import *
-from src.agregation import *
-from src.rules_engine import *
-from collections import defaultdict
-from src.introspection import *
+
+from src.agregation import (
+    brute_force_detector,
+    compter_formats,
+    extract_unique_error_ips,
+    occurence,
+    occurence_ip_connexion,
+)
+from src.ingestion import extract_blacklist_ips, lire_all_logs, parse_logs
+from src.introspection import introspection_audit, introspection_global, introspection_local
+from src.rules_engine import apply_security_rules
+from src.transfo import filtrage_logs, normalize_logs
 
 
-def lancer_pipeline(fichiers_logs, fichier_blacklist):
+def lancer_pipeline(fichiers_logs: list[str], fichier_blacklist: str) -> str:
     """Lance le pipeline complet : lecture, filtrage, normalisation,
     puis application des règles de sécurité sur les logs.
 
@@ -99,12 +106,14 @@ def lancer_pipeline(fichiers_logs, fichier_blacklist):
     var_globals = globals()
     introspection_global(var_globals, dossier_rapport)
 
+    introspection_audit(locals(), var_globals, dossier_rapport)
+
     verifier_rapport(dossier_rapport)
 
     return dossier_rapport
 
 
-def verifier_rapport(dossier_rapport):
+def verifier_rapport(dossier_rapport: str) -> None:
     """Verifie que les fichiers de rapport ont bien ete crees, et affiche
     le resultat dans le terminal pour etre sur que le scan s'est bien passe."""
     fichier_global = os.path.join(dossier_rapport, "report_global.txt")
