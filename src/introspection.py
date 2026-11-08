@@ -26,15 +26,6 @@ def list_info(log: dict) -> str:
 
     return information
 
-
-
-
-
-
-
-
-
-
 # rapport pour UN log
 # local_variables = ce que locals() a renvoye dans apply_security_rules
 # dedans il y a 'args' (les regles appliquees) et 'kwargs' (log, context...)
