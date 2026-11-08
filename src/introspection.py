@@ -1,6 +1,7 @@
 import os
 
 
+# fabrique un petit texte avec les infos du log, pour le rapport
 def list_info(log: dict) -> str:
     payload = log.get('PAYLOAD') or {}
 
@@ -17,16 +18,21 @@ def list_info(log: dict) -> str:
 
     information = ""
 
+    # on ajoute seulement les infos qui existent (pas les None)
     for nom, valeur in champs.items():
         if valeur is not None:
             information += f"{nom}: {valeur}\n"
 
     return information
 
+# rapport pour UN log
+# local_variables = ce que locals() a renvoye dans apply_security_rules
+# dedans il y a 'args' (les regles appliquees) et 'kwargs' (log, context...)
 def introspection_local(local_variables: dict, dossier_rapport: str):
 
     details = ""
 
+    # on recupere ce qu'il nous faut dans les variables locales
     function_kwargs = local_variables.get('kwargs')
     applied_rules = local_variables.get('args')
     context = function_kwargs['context']
@@ -38,6 +44,7 @@ def introspection_local(local_variables: dict, dossier_rapport: str):
    
     log_info = list_info(log)
 
+    # pour les logins on ajoute en plus les infos de brute force
     if event in ('LOGIN_SUCCESS', 'LOGIN_FAILED'):
         details = f'''
 [CONTEXTE]
@@ -45,6 +52,7 @@ Echecs de connexion pour cette IP : {context['occurence_brute_force'].get(ip_add
 IP suspecte de brute force : {'Oui' if ip_address in context['ip_sus_brute_force'] else 'Non'}
 '''
 
+    # rule.__name__ donne le nom de la fonction (ex: "occurence")
     information = f'''
 -----------------------------------------------------------------------
 [LOG]
@@ -55,6 +63,8 @@ regles appliquees: {[rule.__name__ for rule in applied_rules]}
 {details}
 
 '''
+    # on ecrit dans le rapport seulement les logs importants (erreurs ou ip suspecte)
+    # "a" = on ajoute a la fin du fichier sans effacer ce qu'il y a deja
     if log_level == 'ERROR' or log_level == 'WARNING' or log_level == 'CRITICAL' or ip_address in context['ip_sus_brute_force']:
         chemin_fichier = os.path.join(dossier_rapport, "report_local.txt")
         with open(chemin_fichier, "a", encoding="utf-8") as f:
@@ -63,6 +73,9 @@ regles appliquees: {[rule.__name__ for rule in applied_rules]}
 
 
 
+# rapport final, fait une seule fois a la fin
+# var_global = ce que globals() a renvoye dans main.py
+# on va chercher dedans le context (tous les compteurs) et la blacklist
 def introspection_global(var_global: dict, dossier_rapport: str):
     ip_sus_brute_force = var_global.get('context').get('ip_sus_brute_force')
     occurence_user = var_global.get('context').get('occurence_user')
@@ -77,6 +90,7 @@ def introspection_global(var_global: dict, dossier_rapport: str):
     formats = var_global.get('context').get('formats')
 
 
+    # pour chaque ip on calcule son pourcentage de logins rates
     list_ip_string = ""
 
     for ip in unique_ips:
@@ -84,6 +98,11 @@ def introspection_global(var_global: dict, dossier_rapport: str):
         if echecs_par_ip[ip] + success_par_ip[ip] > 0: #evite la division par zero
             list_ip_string += f"{ip} (echecs: {echecs_par_ip[ip]}, succes: {success_par_ip[ip]}, pourcentage d'echec: {echecs_par_ip[ip] / (echecs_par_ip[ip] + success_par_ip[ip]) * 100:.2f}%)\n"
 
+    # operations sur les ensembles utilisees dans le rapport :
+    # | = union (les ip des deux cotes)
+    # & = intersection (les ip qui sont dans les deux)
+    # - = difference (les ip du premier mais pas du deuxieme)
+    # ^ = difference symetrique (les ip qui sont dans un seul des deux)
     information = f'''
 [VARIABLES GLOBALES]
 nombre de fichier de log = {len(var_global.get('logs', []))}
@@ -134,6 +153,7 @@ Formats des logs (routage match-case):
 # Fonction qui formate les affichages des dictionnaires et des ensembles pour le rapport global
 def formate_affichages(item):
 
+    # pour un dictionnaire : une ligne "- cle: valeur" par element, trie
     if type(item) is dict:
         sorted_items = sorted(item.items())
         formatted_items = ""
@@ -143,6 +163,7 @@ def formate_affichages(item):
 
         return formatted_items
 
+    # pour un set : une ligne "- ip" par element, trie
     if type(item) is set:
         sorted_ips = sorted(item)
         formatted_ips = ""
