@@ -57,7 +57,7 @@ regles appliquees: {[rule.__name__ for rule in applied_rules]}
 '''
     if log_level == 'ERROR' or log_level == 'WARNING' or log_level == 'CRITICAL' or ip_address in context['ip_sus_brute_force']:
         chemin_fichier = os.path.join(dossier_rapport, "report_local.txt")
-        with open(chemin_fichier, "a") as f:
+        with open(chemin_fichier, "a", encoding="utf-8") as f:
             f.write(information)
 
 
@@ -74,6 +74,7 @@ def introspection_global(var_global: dict, dossier_rapport: str):
     port = var_global.get('context').get('ports')
     protocol = var_global.get('context').get('protocols')
     status_codes = var_global.get('context').get('status_codes')
+    formats = var_global.get('context').get('formats')
 
 
     list_ip_string = ""
@@ -117,6 +118,8 @@ Protocoles d'ip:
 {formate_affichages(dict(protocol))}
 Codes de statut:
 {formate_affichages(dict(status_codes))}
+Formats des logs (routage match-case):
+{formate_affichages(dict(formats))}
 [STATISTIQUES DES IP]
 {list_ip_string}
 -----------------------------------------------------------------------
@@ -124,7 +127,7 @@ Codes de statut:
 
 '''
     chemin_fichier = os.path.join(dossier_rapport, "report_global.txt")
-    with open(chemin_fichier, "a") as f:
+    with open(chemin_fichier, "a", encoding="utf-8") as f:
         f.write(information)
 
 

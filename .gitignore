@@ -7,3 +7,6 @@ __pycache__/
 
 # Fichier de log genere par le menu de start.py (choix 2)
 demo_data/exemple_genere_*.log
+
+# Environnement virtuel
+.venv/

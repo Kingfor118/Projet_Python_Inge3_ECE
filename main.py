@@ -33,7 +33,8 @@ def lancer_pipeline(fichiers_logs, fichier_blacklist):
         'success_par_ip': defaultdict(int),
         'ports': defaultdict(int),
         'protocols': defaultdict(int),
-        'status_codes': defaultdict(int)
+        'status_codes': defaultdict(int),
+        'formats': defaultdict(int)
     }
 
     logs = fichiers_logs
@@ -66,8 +67,12 @@ def lancer_pipeline(fichiers_logs, fichier_blacklist):
             occurence,
             extract_unique_error_ips,
             occurence_ip_connexion,
+            compter_formats,
             log=line_log,
-            context=context
+            context=context,
+            # parametre de configuration : nombre d'echecs de connexion
+            # a partir duquel une IP est consideree comme suspecte
+            seuil_brute_force=5
         )
 
         introspection_local(var_locals, dossier_rapport)

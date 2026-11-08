@@ -5,9 +5,13 @@ from collections.abc import Iterator
 
 
 def lire_logs(path: str) -> Iterator[tuple[str, int, str]]:
-    with open(path, 'r', encoding='UTF-8') as file_obj:
-        for numero, line in enumerate(file_obj, start=1):
-            yield line.strip(), numero, path
+    try:
+        with open(path, 'r', encoding='UTF-8') as file_obj:
+            for numero, line in enumerate(file_obj, start=1):
+                yield line.strip(), numero, path
+    except FileNotFoundError:
+        # Si le fichier n'existe pas, on previent et on passe au fichier suivant
+        print(f"Fichier de log introuvable : {path}")
 
 def lire_all_logs(path) -> Iterator[tuple[str, int]]:
     for p in path:
@@ -31,11 +35,12 @@ def parse_logs(logs: str) -> dict:
         if payload.get("event") is None:
             raise ValueError(f"ligne le payload ne contient pas event")
         
+        # Tuple (IP, Port, Protocole) : metadonnees fixes de la connexion.
+        # Port et protocole valent None si la ligne n'est pas une connexion.
         metadata_tuple = (
+            ip[1],
             payload.get("port"),
             payload.get("protocol"),
-            payload.get("status"),
-            payload.get("method"),
         )
 
         if (
@@ -57,11 +62,20 @@ def parse_logs(logs: str) -> dict:
             }
             return logs_dict
 
-    except Exception as e:
+    # On n'attrape que les erreurs qu'une ligne mal formee peut provoquer :
+    # - IndexError : il manque un morceau dans la ligne (ex: parts[4] n'existe pas)
+    # - ValueError : le JSON est invalide, ou un des titres n'est pas le bon
+    # - AttributeError : le payload n'est pas un dictionnaire (pas de .get())
+    except (IndexError, ValueError, AttributeError) as e:
         print(f"ligne {numero} Erreur: {e} fichier {fichier}")
         return None
 
-    
+
 def extract_blacklist_ips(path) -> frozenset:
-    with open(path, 'r') as f:
-        return frozenset(line.strip() for line in f if line.strip())
+    try:
+        with open(path, 'r', encoding='UTF-8') as f:
+            return frozenset(line.strip() for line in f if line.strip())
+    except FileNotFoundError:
+        # Sans fichier de blacklist, on continue avec une blacklist vide
+        print(f"Fichier de blacklist introuvable : {path}")
+        return frozenset()
