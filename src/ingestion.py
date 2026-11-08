@@ -22,7 +22,7 @@ def lire_logs(path: str) -> Iterator[tuple[str, int, str]]:
 # lit plusieurs fichiers a la suite
 # yield from = on renvoie toutes les lignes de lire_logs(p) une par une, puis on passe au fichier d'apres
 
-def lire_all_logs(path) -> Iterator[tuple[str, int]]:
+def lire_all_logs(path: list[str]) -> Iterator[tuple[str, int, str]]:
     for p in path:
         yield from lire_logs(p)
 
@@ -31,7 +31,7 @@ def lire_all_logs(path) -> Iterator[tuple[str, int]]:
 # transforme une ligne de texte en dictionnaire
 # exemple de ligne :
 # 2026-10-15T08:00:00 level=ERROR ip=192.168.1.13 user=admin payload={"event":"login_failed","success":false}
-def parse_logs(logs: str) -> dict:
+def parse_logs(logs: str) -> dict | None:
     # logs c'est le tuple (ligne, numero, fichier) qui vient de lire_logs
     numero = logs[1]
     fichier = logs[2]
@@ -138,7 +138,7 @@ def parse_logs(logs: str) -> dict:
 
 # lit le fichier blacklist et renvoie les ip dans un frozenset
 # frozenset = comme un set mais on peut plus le modifier apres (la blacklist doit pas bouger)
-def extract_blacklist_ips(path) -> frozenset:
+def extract_blacklist_ips(path: str) -> frozenset[str]:
     try:
         with open(path, 'r', encoding='UTF-8') as blacklist_file:
             # on prend chaque ligne sans les espaces, et on saute les lignes vides
