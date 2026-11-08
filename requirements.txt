@@ -1,17 +1,2 @@
-# Fichier de dépendances - Projet SIEM Python (Ingé 3 ECE)
-# Le cœur applicatif (src/ et main.py) repose exclusivement sur la bibliothèque standard Python 3.10+.
-# Les paquets ci-dessous sont dédiés à la suite de tests, au profiling et au notebook de démonstration.
-
-# Tests unitaires et couverture
-pytest>=8.0.0
-pytest-cov>=5.0.0
-
-# Outils de qualité de code et linting
-flake8>=7.0.0
-
-# Environnement de démonstration et visualisation de graphiques (Rapport)
-jupyter>=1.0.0
-ipykernel>=6.29.0
-matplotlib>=3.8.0
-tabulate>=0.9.0
-
+# genere avec pip freeze dans le venv du projet
+# aucune dependance externe : le projet utilise uniquement la bibliotheque standard de Python
