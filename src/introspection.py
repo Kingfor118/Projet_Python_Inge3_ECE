@@ -1,9 +1,10 @@
-import os
+import os, sys
+from src.transfo import recuperer_payload
 
 
 # fabrique un petit texte avec les infos du log, pour le rapport
 def list_info(log: dict) -> str:
-    payload = log.get('PAYLOAD') or {}
+    payload = recuperer_payload(log)
 
     champs = {
         'IP': log.get('IP'),
@@ -25,6 +26,15 @@ def list_info(log: dict) -> str:
 
     return information
 
+
+
+
+
+
+
+
+
+
 # rapport pour UN log
 # local_variables = ce que locals() a renvoye dans apply_security_rules
 # dedans il y a 'args' (les regles appliquees) et 'kwargs' (log, context...)
@@ -39,7 +49,7 @@ def introspection_local(local_variables: dict, dossier_rapport: str):
     log = function_kwargs['log']
     ip_address = log.get('IP')
     log_level = log.get('LEVEL')
-    event = log.get('PAYLOAD', {}).get('EVENT')
+    event = recuperer_payload(log).get('EVENT')
 
    
     log_info = list_info(log)
@@ -141,8 +151,7 @@ Formats des logs (routage match-case):
 {formate_affichages(dict(formats))}
 [STATISTIQUES DES IP]
 {list_ip_string}
------------------------------------------------------------------------
-[FIN DU RAPPORT]
+
 
 '''
     chemin_fichier = os.path.join(dossier_rapport, "report_global.txt")
@@ -151,7 +160,7 @@ Formats des logs (routage match-case):
 
 
 # Fonction qui formate les affichages des dictionnaires et des ensembles pour le rapport global
-def formate_affichages(item):
+def formate_affichages(item: dict | set | frozenset) -> str:
 
     # pour un dictionnaire : une ligne "- cle: valeur" par element, trie
     if type(item) is dict:
@@ -172,3 +181,30 @@ def formate_affichages(item):
             formatted_ips += f"- {ip}\n"
 
         return formatted_ips
+
+
+def audit_variable(variables: dict, titre: str) -> str:
+    text = f"[AUDIT {titre}]\n"
+
+    for name, value in sorted(variables.items()):
+
+        if name.startswith("__"):
+            continue
+
+        value_type = type(value).__name__
+        value_size = sys.getsizeof(value)
+        text += f" - {name} : {value_type}, {value_size} octets \n"
+
+    return text
+
+def introspection_audit(locales_variables: dict, globals_variables: dict, dossier_rapport: str) -> None:
+    text = audit_variable(locales_variables, "VARIABLES LOCALES (locals)")
+    text += "\n"
+    text += audit_variable(globals_variables, "VARIABLES GLOBALES (globals)")
+
+    text += "\n-----------------------------------------------------------------------"
+    text += "[FIN DU RAPPORT]\n"
+
+    path_rapport = os.path.join(dossier_rapport, "report_global.txt")
+    with open(path_rapport, "a", encoding="utf-8") as f:
+        f.write(text)
