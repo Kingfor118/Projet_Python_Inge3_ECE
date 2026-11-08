@@ -91,3 +91,15 @@ def router_log(element) -> str:
         # Tout le reste
         case _:
             return "FORMAT INCONNU"
+
+
+
+# INFO: (Lucas)
+"""
+La fonction permet de récupérer dans le log les PAYLOAD seulement de type dict, sinon on return {}
+"""
+def recuperer_payload(log: dict) -> dict:
+    payload = log.get("PAYLOAD")
+    if isinstance(payload, dict):
+        return payload
+    return {}
